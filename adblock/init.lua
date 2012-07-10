@@ -501,8 +501,12 @@ function read_subscriptions(file, clear_first)
     end
 end
 
+-- URI of the chrome page
+chrome_page    = "luakit://adblock/"
+
 --- Shows the chrome page in the given view.
-chrome.add("adblock/", function (view, uri)
+chrome.add("adblock", function (view, meta)
+    local uri = chrome_page
     -- Get a list of all the unique tags in all the lists and build a
     -- relation between a given tag and a list of subscriptions with that tag.
     local opts = {}
@@ -578,8 +582,6 @@ chrome.add("adblock/", function (view, uri)
     view:load_string(html, tostring(uri))
 end)
 
--- URI of the chrome page
-chrome_page    = "luakit://adblock/"
 
 -- Add normal binds.
 local key, buf = lousy.bind.key, lousy.bind.buf
