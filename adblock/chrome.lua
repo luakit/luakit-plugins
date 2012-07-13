@@ -96,6 +96,9 @@ function refresh_views()
     end
 end
 
+-- Enable adblock to refresh this chrome view.
+adblock.refresh_views = refresh_views
+
 -- URI of the chrome page
 chrome_page    = "luakit://adblock/"
 
