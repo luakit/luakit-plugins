@@ -6,9 +6,6 @@
 local ipairs = ipairs
 local table = table
 
-local print = print
-local tostring = tostring
-
 local lousy = require "lousy"
 local add_binds, add_cmds = add_binds, add_cmds
 local new_mode, menu_binds = new_mode, menu_binds
@@ -25,7 +22,7 @@ add_cmds({
 local escape = lousy.util.escape
 new_mode("tabmenu", {
     enter = function (w)
-        hidebox = w.sbar.ebox.hidden
+        hide_box = w.sbar.ebox.hidden
         local rows = {}
         for _, view in ipairs(w.tabs.children) do
             table.insert(rows, {escape(view.uri), escape(view.title), v = view })
