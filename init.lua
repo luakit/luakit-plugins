@@ -36,7 +36,7 @@ rcfile_check = function(filename, fix)
         if not fix then
             return false
         else
-            local default_rc_content = [=[plugins.plugins_to_load = { "adblock", "adblock.chrome", "uaswitch", }]=]
+            local default_rc_content = [=[plugins.plugins_to_load = { "adblock", "adblock.chrome", "uaswitch", "tabmenu", }]=]
             local rc = io.open(filename, "w")
             rc:write(default_rc_content)
             rc:close()
