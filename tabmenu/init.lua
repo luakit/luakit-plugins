@@ -12,7 +12,7 @@ local new_mode, menu_binds = new_mode, menu_binds
 
 module("plugins.tabmenu")
 
-local hide_box = false
+hide_box = false
 
 local cmd = lousy.bind.cmd
 add_cmds({
@@ -22,7 +22,7 @@ add_cmds({
 local escape = lousy.util.escape
 new_mode("tabmenu", {
     enter = function (w)
-        hide_box = w.sbar.ebox.hidden
+        hide_box = not w.sbar.ebox.visible
         local rows = {}
         for _, view in ipairs(w.tabs.children) do
             table.insert(rows, {escape(view.uri), escape(view.title), v = view })
