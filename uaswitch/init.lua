@@ -9,6 +9,8 @@ local type      = type
 local dofile    = dofile
 local assert    = assert
 local error     = error
+local pairs     = pairs
+local ipairs    = ipairs
 local io        = io
 local capi      = { luakit = luakit }
 local lousy     = require("lousy")
@@ -16,6 +18,7 @@ local util      = lousy.util
 local add_binds, add_cmds = add_binds, add_cmds
 local lfs       = require("lfs")
 local plugins   = plugins
+local window    = window
 
 module("plugins.uaswitch")
 
@@ -24,6 +27,15 @@ ua_alias_default = "default"
 ua_strings_file = plugins.plugins_dir .. "uaswitch/ua_strings.lua"
 
 ua_strings = {}
+
+-- Refresh open filters views (if any)
+function update_views()
+    for _, w in pairs(window.bywidget) do
+        for _, v in ipairs(w.tabs.children) do
+            v.user_agent = globals.useragent
+        end
+    end
+end
 
 function load_ua_strings()
     ua_strings = {
@@ -49,6 +61,7 @@ function switch_to(alias)
     if (useragent) then
         io.stdout:write("uaswitcher: Change to '" .. useragent .."'.\n")
         globals.useragent = string.rep(useragent, 1)
+        update_views()
         return
     else
         error("uaswitcher: unknown alias '" .. alias .. "'")
