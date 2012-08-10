@@ -27,7 +27,7 @@ EOF
 # use URL if given else default to easylist.txt
 if (( $# == 1 )) || (( $# == 0 )); then
 	[[ ! -z $1 ]] && [[ $1 == "-h" ]] || [[ $1 == "--help" ]] && usage && exit 0  # check for -hflag
-	listurl="${1-"https://easylist-downloads.adblockplus.org/easylist.txt"}"
+	listurl="${1:-"https://easylist-downloads.adblockplus.org/easylist.txt"}"
 	listname="$(basename ${listurl})"
 elif (( $# > 1 ));then
 	usage
