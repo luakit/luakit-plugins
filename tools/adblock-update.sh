@@ -35,7 +35,7 @@ elif (( $# > 1 ));then
 fi
 
 # look for adblock directory || create
-[[ -d "$DATADIR/luakit/adblock/" ]] && cd "$DATADIR/luakit/adblock/" || mkdir "$DATADIR/luakit/adblock/" && cd "$DATADIR/luakit/adblock/"
+[[ -d "$DATADIR/luakit/adblock/" ]] || mkdir "$DATADIR/luakit/adblock/" && cd "$DATADIR/luakit/adblock/"
 
 # backup the old list
 [[ -f ${listname} ]] && cp -p ${listname} ${listname}.b
