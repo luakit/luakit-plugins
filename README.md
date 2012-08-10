@@ -1,12 +1,13 @@
 luakit-plugins
 ==============
 
-Version control for various luakit plugins.
+Version control for various [luakit](https://github.com/mason-larobina/luakit/) plugins.
 
 Plugins list
 ============
 
 * luakit-adblock
+* tabmenu
 * user agent switcher
 
 Installing
