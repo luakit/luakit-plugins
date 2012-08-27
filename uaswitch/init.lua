@@ -1,5 +1,5 @@
 ------------------------------------------------------------
--- Simple User Agent string changer v0.0.0-pre            --
+-- Simple User Agent string changer v0.1.0                --
 -- © 2012 Plaque FCC <Reslayer@ya.ru>                     --
 ------------------------------------------------------------
 
