@@ -17,9 +17,9 @@ module("plugins.adblock.chrome")
 
 -- Templates
 header_template         = [==[<div class="header"><h2>AdBlock module: {state}</h2><br>AdBlock is in <b>{mode}</b> mode.{rules}</div><hr>]==]
-rules_template          = [==[ {black} rules blacklisting, {white} rules whitelisting.]==]
+rules_template          = [==[ {black} rules blacklisting, {white} rules whitelisting, {ignored} rules ignored.]==]
 block_template          = [==[<div class="tag"><h1>{opt}</h1><ul>{links}</ul></div>]==]
-list_template_enabled   = [==[<li>{title}: <i>(b{black}/w{white}), </i> <a href="{uri}">{name}</a> <span class="id">{id}</span></li>]==]
+list_template_enabled   = [==[<li>{title}: <i>(b{black}/w{white}/i{ignored}), </i> <a href="{uri}">{name}</a> <span class="id">{id}</span></li>]==]
 list_template_disabled  = [==[<li>{title}: <a href="{uri}">{name}</a> <span class="id">{id}</span></li>]==]
 
 html_template = [==[
@@ -131,10 +131,11 @@ chrome.add("adblock", function (view, meta)
                 title   = list.title,
                 white   = list.white,
                 black   = list.black,
+                ignored = list.ignored
             }
             local list_template = list_template_disabled
             -- Show rules count only when enabled this list and have read its rules
-            if util.table.hasitem(list.opts, "Enabled") and list.white and list.black then
+            if util.table.hasitem(list.opts, "Enabled") and list.white and list.black and list.ignored then
                 -- For totals count items only once (protection from multi-tagging by several opts confusion)
                 list_template = list_template_enabled
             end
@@ -149,16 +150,16 @@ chrome.add("adblock", function (view, meta)
         local block = string.gsub(block_template, "{(%w+)}", block_subs)
         table.insert(lines, block)
     end
-    
-    local rulescount = { black = 0, white = 0 }
+
+    local rulescount = { black = 0, white = 0, ignored = 0 }
     for _, list in pairs(adblock.rules) do
-        if list.black and list.white then
-            rulescount.black, rulescount.white = rulescount.black + list.black, rulescount.white + list.white
+        if list.black and list.white and list.ignored then
+            rulescount.black, rulescount.white, rulescount.ignored = rulescount.black + list.black, rulescount.white + list.white, rulescount.ignored + list.ignored
         end
     end
     -- Display rules count only if have them been count
     local html_rules = ""
-    if rulescount.black + rulescount.white > 0 then
+    if rulescount.black + rulescount.white + rulescount.ignored > 0 then
         html_rules = string.gsub(rules_template, "{(%w+)}", rulescount)
     end
     -- Fill the header

@@ -13,11 +13,11 @@ local pairs     = pairs
 local ipairs    = ipairs
 local io        = io
 local capi      = { luakit = luakit }
-local lousy     = require("lousy")
+local lousy     = require ("lousy")
 local util      = lousy.util
 local add_binds, add_cmds = add_binds, add_cmds
-local lfs       = require("lfs")
-local plugins   = plugins
+local lfs       = require ("lfs")
+local plugins   = require ("plugins")
 local window    = window
 
 module("plugins.uaswitch")
