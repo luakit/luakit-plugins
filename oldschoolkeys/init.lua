@@ -12,10 +12,24 @@ module("oldschoolkeys")
 local userbindings = {
     -- Normal mode:
     normal = {
-        key({},          "b",           function (w, m) w:back(m.count)    end, {count=1}),
-        key({"Mod1"},    "Page_Up",     function (w, m) w.tabs:reorder(w.view, w.tabs:current() - m.count) end, {count=1}),
-        key({"Mod1"},    "Page_Down",   function (w, m) w.tabs:reorder(w.view, (w.tabs:current() + m.count) % w.tabs:count()) end, {count=1}),
-    },
+        -- History
+        key({}, "b", "Go back in the browser history `[count=1]` items.",
+            function (w, m) w:back(m.count) end),
+
+        -- Tab
+        key({"Mod1"}, "Page_Up", "Reorder tab left `[count=1]` positions.",
+            function (w, m)
+                w.tabs:reorder(w.view,
+                    ((w.tabs:current() - 1 - m.count) % w.tabs:count() + 1) )
+            end, {count=1}),
+
+        key({"Mod1"}, "Page_Down", "Reorder tab right `[count=1]` positions.",
+            function (w, m)
+                w.tabs:reorder(w.view,
+                    (w.tabs:current() + m.count) % w.tabs:count())
+            end, {count=1}),
+
+        },
 }
 
 function load()
