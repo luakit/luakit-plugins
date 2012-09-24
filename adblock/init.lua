@@ -19,25 +19,34 @@ local ipairs    = ipairs
 local assert    = assert
 local unpack    = unpack
 local type      = type
+local math      = math
 local io        = io
 local os        = os
 local string    = string
 local table     = table
 local tostring  = tostring
 local tonumber  = tonumber
+local print     = print
 local webview   = webview
 local lousy     = require("lousy")
 local util      = lousy.util
 local chrome    = require("chrome")
-local capi      = { luakit = luakit }
 local add_binds, add_cmds = add_binds, add_cmds
 local lfs       = require("lfs")
 local window    = window
 local plugins   = plugins
+local plib      = require("plugins.lib")
+
+local capi      = {
+    luakit = luakit,
+    timer  = timer,
+}
 
 module("plugins.adblock")
 
 --- Module global variables
+local check_interval = 1000 * 60 * 1
+local timer = nil
 local enabled = true
 -- Adblock Plus compatible filter lists
 local adblock_dir = capi.luakit.data_dir .. "/adblock/"
@@ -47,14 +56,17 @@ local simple_mode = true
 local subscriptions_file = adblock_dir .. "/subscriptions"
 subscriptions = {}
 
-
-
 -- String patterns to filter URI's with
 rules = {}
 
 -- Functions to filter URI's by
 -- Return true or false to allow or block respectively, nil to continue matching
 local filterfuncs = {}
+
+local monthID = {}
+for id, month in ipairs(util.string.split("jan feb mar apr may jun jul aug sep oct nov dec")) do
+    monthID[month] = id
+end
 
 -- Fitting for adblock.chrome.refresh_views()
 refresh_views = function()
@@ -246,8 +258,19 @@ parse_abpfilterlist = function (filename, cache)
     return white, black, wlen, blen, icnt
 end
 
+
+
 -- Load filter list files
 load = function (reload, single_list)
+    if not status_timer then
+        status_timer = capi.timer{interval=check_interval}
+        status_timer:add_signal("timeout", function ()
+            for filename, list in pairs(subscriptions) do
+                fetch_list(list)
+            end
+        end)
+        status_timer:start()
+    end
     if reload then subscriptions, filterfiles = {}, {} end
     detect_files()
     if not simple_mode and not single_list then
@@ -451,6 +474,61 @@ function list_opts_modify(list_index, opt_ex, opt_inc)
     refresh_views()
 end
 
+-- Parse list header to determine has it expired or not.
+-- Arg: List filename
+-- Returns true if the list needs to be refreshed.
+function update_required(list_file)
+    if not os.exists(list_file) then
+        return true
+    end
+    
+    local period = 0
+    local fh = io.open(list_file, "r")
+    local published = false
+    local lines_count = 0
+    for line in fh:lines() do
+        lines_count = lines_count+1
+        local line = string.lower(line)
+
+        if string.match(line, "modified") or string.match(line, "updated") then
+            for date_day, date_mon_literal, date_year in string.gmatch(line, " (%d+) (%l+) (%d+)") do
+                published = os.time({ year = date_year, month = monthID[date_mon_literal], day = date_day })
+            end
+        else
+            for days in string.gmatch(line, "expires.+ (%d+) day") do
+                period = tonumber(days)
+            end
+        end
+        if lines_count > 10 then
+            -- No sense in further reading.
+            break
+        end
+    end
+    fh:close()
+    if published and period then
+        local now = os.time(os.date("*t"))
+        local daylength = 60 * 60 * 24
+        local days_passed = os.difftime(now, published)/daylength
+    
+        return days_passed >= period
+    else
+        return false
+    end
+end
+-- Update or fetch list by its URI according to its check period.
+-- Forces update when initial == true or no such local file.
+function fetch_list(list, initial)
+    if ( type(list) == "table" ) and list.title then --and ( list.uri > "" ) then
+        if update_required(adblock_dir .. list.title) then
+            print ("adblock: update is requred for " .. list.title .. ".")
+        end
+    end
+end
+
+-- Download list: get or update.
+function update_list(list)
+end
+
 --- Add a list to the in-memory lists table
 function add_list(uri, title, opts, replace, save_lists)
     assert( (title ~= nil) and (title ~= ""), "adblock list add: no title given")
@@ -519,6 +597,69 @@ function read_subscriptions(file, clear_first)
     end
 end
 
+local commands = {
+    ["subscribe"] = function(params)
+        local parsed = false
+        for loc, reqURI, reqTitle in string.gmatch(params, '(.*)&requiresLocation=(.+)&requiresTitle=(.+)') do
+            parsed = { requisite = { uri = plib.unescape(reqURI), title = plib.unescape(reqTitle) }, loc = loc }
+        end
+        
+        if not parsed then
+            parsed = { loc = params }
+        end
+        
+        for locURI, locTitle, rest in string.gmatch(parsed.loc, '?location=(https.+)&title=(.*)') do
+            parsed.command = "add_subscription"
+            parsed.location = { uri = plib.unescape(locURI), title = plib.unescape(locTitle) }
+            parsed.loc = nil
+        end
+        
+        if parsed.loc then
+            parsed = nil
+        end
+        
+        return parsed or nil
+    end,
+}
+
+-- Add schema hook.
+-- This parses 'abp:' URIs to detect what action should be taken
+-- and response accordingly.
+webview.init_funcs.abp_subscribe_hook = function (view, w)
+    view:add_signal("navigation-request", function (v, uri)
+        if string.match(string.lower(uri), "^http://abp:.") or string.match(string.lower(uri), "^abp:.") then
+            view:stop() -- Still no idea better.
+            print ("adblock: command was '" .. uri .. "'.")
+            local action = false
+            local params = false
+            for command, rest in string.gmatch(uri, 'abp:(%w+)(.*)') do
+                print ( string.format("adblock: command == %s.", command) )
+                action = { command = command }
+                params = rest
+            end
+            
+            if action then
+                action.reply = commands[action.command](params)
+            end
+            
+            
+            if not (action and action.reply) then
+            else
+                for k, v in pairs(action.reply) do
+                    if type(v) == "table" then
+                        print (k .. ":")
+                        for k, v in pairs(v) do
+                            print (string.format("%s = %s.", k, v))
+                        end
+                    else
+                        print (string.format("%s = %s.", k, v))
+                    end
+                end
+            end
+            return false
+        end
+    end)
+end
 
 -- Add commands.
 local cmd = lousy.bind.cmd
