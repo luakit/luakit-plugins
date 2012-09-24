@@ -11,7 +11,7 @@ local add_binds, add_cmds = add_binds, add_cmds
 module("plugins.yanksel")
 
 add_binds("normal", {
-    buf("^ys$",
+    buf("^Ys$",
 	function (w)
 	    local text = luakit.selection.primary
 	    if not text then w:error("Empty selection.") return end
