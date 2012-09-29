@@ -11,8 +11,9 @@ local plugins   = require("plugins")
 module("plugins.lib")
 
 local unescape_html_subst = {
-    ["%3A"] = ":",
-    ["%2F"] = "/",
+    ["%3A"] = ":", ["%3a"] = ":",
+    ["%2F"] = "/", ["%2f"] = "/",
+    ["%2D"] = "-", ["%2d"] = "-",
     ["%20"] = " ",
     -- To be continued! ;’D
 }
