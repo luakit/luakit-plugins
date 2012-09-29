@@ -184,21 +184,24 @@ end)
 -- Add chrome binds.
 local key, buf = lousy.bind.key, lousy.bind.buf
 add_binds("normal", {
-    buf("^ga$", function (w)
-        w:navigate(chrome_page)
-    end),
+    buf("^ga$", "AdBlock: view luakit://adblock/ infopage.",
+        function (w)
+            w:navigate(chrome_page)
+        end),
 
-    buf("^gA$", function (w, b, m)
-        for i=1, m.count do
-            w:new_tab(chrome_page)
-        end
-    end, {count=1}),
+    buf("^gA$", "AdBlock: view luakit://adblock/ infopage (new tab).",
+        function (w, b, m)
+            for i=1, m.count do
+                w:new_tab(chrome_page)
+            end
+        end, {count=1}),
 })
 
 -- Add chrome commands.
 local cmd = lousy.bind.cmd
 add_cmds({
-    cmd("adblock", function (w)
-        w:navigate("luakit://adblock/")
-    end),
+    cmd("adblock", "AdBlock: view luakit://adblock/ infopage.",
+        function (w)
+            w:navigate("luakit://adblock/")
+        end),
 })
