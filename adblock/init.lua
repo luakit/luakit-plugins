@@ -261,7 +261,7 @@ end
 
 
 -- Load filter list files
-load = function (reload, single_list)
+load = function (reload, load_files)
     if not status_timer then
         status_timer = capi.timer{interval=check_interval}
         status_timer:add_signal("timeout", function ()
@@ -288,42 +288,62 @@ load = function (reload, single_list)
         -- Yes we may have changed subscriptions and even fixed something with them.
         write_subscriptions()
     end
-
-    -- [re-]loading:
-    if reload then rules = {} end
+    
     local filters_dir = adblock_dir
     if simple_mode then
         filters_dir = capi.luakit.data_dir
     end
     local filterfiles_loading = {}
-    if single_list and not reload then
-        filterfiles_loading = { single_list }
-    else
-        filterfiles_loading = filterfiles
-    end
     local rules_cache = {
         black = {},
         white = {}
     } -- This cache should let us avoid unnecessary filters duplication.
     
+    if load_files and not reload then
+        if type(load_files) == "string" then
+            load_files = { load_files }
+        end
+        filterfiles_loading = load_files
+        -- Now we should pre-cache rules we had before we load another file:
+        for title, list in pairs(rules) do
+            -- Excluding this file, all white and black lists:
+            if title ~= single_list then
+                for pattern, opts in pairs(list.white) do
+                    rules_cache.white[pattern] = opts
+                end
+                for pattern, opts in pairs(list.black) do
+                    rules_cache.black[pattern] = opts
+                end
+            end
+        end -- And I know this can be extremely slow; better ideas?
+    else
+        filterfiles_loading = filterfiles
+    end
+    
+    local rules_loading = {}
     for _, filename in ipairs(filterfiles_loading) do
         local white, black, wlen, blen, icnt = parse_abpfilterlist(filters_dir .. filename, rules_cache)
         local list = {}
         if not simple_mode then
             list = subscriptions[filename]
         else
-            local list_found = rules[filename]
+            local list_found = rules_loading[filename]
             if list_found then
                 list = list_found
             end
         end
-        if not util.table.hasitem(rules, list) then
-            rules[filename] = list
-        end
+        rules_loading[filename] = list
         list.title, list.white, list.black, list.ignored = filename, wlen or 0, blen or 0, icnt or 0
         list.whitelist, list.blacklist = white or {}, black or {}
     end
     
+    if load_files then -- Only these files.
+        for _, title in pairs(load_files) do
+            rules[title] = rules_loading[title]
+        end
+    else
+        rules = rules_loading
+    end
     rules_cache.white, rules_cache.black = nil, nil
     rules_cache = nil
     refresh_views()
