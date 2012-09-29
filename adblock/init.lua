@@ -684,26 +684,32 @@ end
 -- Add commands.
 local cmd = lousy.bind.cmd
 add_cmds({
-    cmd({"adblock-reload", "abr"}, function (w)
-        info("adblock: Reloading filters.")
-        load(true)
-        info("adblock: Reloading filters complete.")
-    end),
+    cmd({"adblock-reload", "abr"}, "AdBlock: reload filtering rules.",
+        function (w)
+            info("adblock: Reloading filters.")
+            load(true)
+            info("adblock: Reloading filters complete.")
+        end),
     
-    cmd({"adblock-list-enable", "able"}, function (w, a)
-        list_opts_modify(tonumber(a), "Disabled", "Enabled")
-    end),
+    cmd({"adblock-list-enable", "able"}, "AdBlock: enable a list.",
+        function (w, a)
+            list_opts_modify(tonumber(a), "Disabled", "Enabled")
+        end),
     
-    cmd({"adblock-list-disable", "abld"}, function (w, a)
-        list_opts_modify(tonumber(a), "Enabled", "Disabled")
-    end),
-    cmd({"adblock-enable", "abe"}, function (w)
-	enable()
-    end),
+    cmd({"adblock-list-disable", "abld"}, "AdBlock: disable a list.",
+        function (w, a)
+            list_opts_modify(tonumber(a), "Enabled", "Disabled")
+        end),
+        
+    cmd({"adblock-enable", "abe"}, "AdBlock: enable.",
+        function (w)
+            enable()
+        end),
     
-    cmd({"adblock-disable", "abd"}, function (w)
-	disable()
-    end),
+    cmd({"adblock-disable", "abd"}, "AdBlock: disable.",
+        function (w)
+            disable()
+        end),
 })
 
 -- Initialise module
