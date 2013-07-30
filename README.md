@@ -11,6 +11,7 @@ Plugins list
 * tabmenu (menu of tabs open)
 * user agent switcher (allow Luakit to fake it's an other browser)
 * yank selection (simply yanks selection like yanking title or URI)
+* sessions (allows saving multiple sessions)
 
 Installing
 ==========

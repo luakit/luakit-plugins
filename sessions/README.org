@@ -1,0 +1,61 @@
+* sessions
+
+This plug-in extends the original _session_ module, allowing several
+saved sessions.
+
+** Features
+- Add =session.tab_restore(w, delete)=:
+  Works like =session.restore(delete)=, except no new window is created.
+  All tabs are added to the current window.
+- Allow storing named sessions.
+  The sessions module wraps all function of session.
+- _sessionslist_ mode:
+  Display all saved sessions using the window menu.
+  Possible actions:
+ - delete
+ - restore / restore & delete
+ - tab_restore / tab_restore & delete
+
+** Configuration
+
+You can configure the directory where sessions are stored and the
+notification displayed for the _sessionslist_ mode. Simply set the
+option in the =plugins.sessions= table in your _plugins/rc.lua_:
+
+#+BEGIN_SRC
+plugins.sessions = {
+   dir = luakit.data_dir .. "/sessions",
+   mode_notification = [[Use j/k to move, [d]elete,
+ [r]estore,       [R]estore & delete,
+ [t]ab restore,   [T]ab restore & delete.]],
+}
+#+END_SRC
+
+These are the default values, you could deactivate the
+_mode_notification_ with
+
+#+BEGIN_SRC
+plugins.sessions = {
+   mode_notification = false,
+}
+#+END_SRC
+
+** Bindings
+
+*** normal-mode
+- _Zw_: Save the current session (current window)
+- _ZW_: Save the current session (all windows)
+- _ZL_: Open session list
+
+*** commands
+- _:sessionslist_: Open session list.
+- _:session-save-current-window_: Save the current session (current window)
+- _:session-save-all-windows_: Save the current session (all window)
+
+*** sessionslist-mode
+- _d_: Delete selected session
+- _Return_: Restore selected session (don't delete)
+- _r_: Restore selected session (don't delete)
+- _R_: Restore and delete selected session
+- _t_: Restore selected session in tabs (don't delete)
+- _T_: Tab restore and delete selected session
