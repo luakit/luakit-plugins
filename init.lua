@@ -21,8 +21,11 @@ module("plugins")
 
 plugins_dir       = capi.luakit.config_dir .. "/plugins/"
 rcfile            = plugins_dir .. "rc.lua"
+remotefile        = plugins_dir .. "remote.lua"
 plugins_to_load   = {}
 policy            = "manual" -- To prevent automatic load on old rc.lua configs.
+
+local remote = dofile(remotefile)
 
 -- Get current list of usable plugins.
 -- Method: listing all "<plugins_dir>/(*)/init.lua" catalogues and returning
@@ -100,6 +103,12 @@ plugins.policy = "automatic" -- Choose "manual" to enable selection below.
 plugins.plugins_to_load = {
 {plugins}
 }
+
+plugins.remote_policy = "automatic" -- Choose "manual" to enable manual updates.
+
+plugins.repos_to_watch = {
+
+}
 ]=]
 
             local plugin_line_template = [=[    "{pluginid}"]=]
@@ -143,6 +152,8 @@ load_plugins = function()
         end
     end
     
+    remote.manage(repos_to_watch, remote_policy, valid_plugins, plugins_dir, plugins_list)
+
     -- Import plugins:
     for _, plugin_id in pairs(plugins_to_load) do
         if valid_plugins[plugin_id] then
@@ -153,7 +164,7 @@ load_plugins = function()
             print ("Ignore plugin '" .. plugin_id .. "'.")
         end
     end
-    
+
     print ("Initializing plugins: done.")
 end
 
