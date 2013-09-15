@@ -144,6 +144,12 @@ load_plugins = function()
     -- Read rcfile with plugins list:
     local rc = dofile (rcfile)
     
+    -- Checks for remote repos to download/update
+    remote.manage(repos_to_watch, remote_policy, valid_plugins, plugins_dir)
+
+    -- Updates valid_plugins after downloading/updating
+    valid_plugins = plugins_list (plugins_dir)
+
     -- TODO: Refactor this ugly code into something efficient.
     if policy ~= nil and policy == "automatic" then
         plugins_to_load = {}
@@ -151,8 +157,6 @@ load_plugins = function()
             table.insert(plugins_to_load, plugin_id)
         end
     end
-    
-    remote.manage(repos_to_watch, remote_policy, valid_plugins, plugins_dir, plugins_list)
 
     -- Import plugins:
     for _, plugin_id in pairs(plugins_to_load) do

@@ -1,25 +1,31 @@
 remote = {}
 
-remote.manage = function(repos_to_watch, remote_policy, valid_plugins, plugins_dir, plugins_list)
+remote.manage = function(repos_to_watch, remote_policy, valid_plugins, plugins_dir)
     local repos_short = remote.shrink(repos_to_watch)
 
     local status = remote.get_status(repos_short, valid_plugins)
 
     for repo, data in pairs(status) do
         if data.state == "new" then
-            remote.download(data.path)
+            print("Downloading " .. repo)
+            remote.download(data.path, repo, plugins_dir)
         elseif remote_policy ~= nil and remote_policy == "automatic" then
-            remote.update(repo)
+            remote.update(repo, plugins_dir)
         end
     end
 end
 
-remote.download = function(path)
-
+remote.download = function(path, repo, plugins_dir)
+    local command = "git clone " .. path .. " " .. plugins_dir .. repo .. "/" 
+    if os.execute(command) == nil then
+        print("Error downloading from path")
+    end
 end
 
-remote.update = function(repo)
-
+remote.update = function(repo, plugins_dir)
+    print("Pulling changes from " .. repo)
+    local command = "cd " .. plugins_dir .. repo .. "; git pull;"
+    os.execute(command)
 end
 
 remote.get_status = function(repos_short, valid_plugins)
