@@ -20,8 +20,10 @@ By default, it will be named "luakit-plugins", so clone instead into "/home/user
 
 * Using terminal git application is easier: ```git clone https://github.com/mason-larobina/luakit-plugins/ ~/.config/luakit/plugins```.
 
-
 If you have no "rc.lua" in "~/.config/luakit/", then it takes no effect, so copy one from "/etc/xdg/luakit/" and find there text like "-- Optional user script loading --". Let us place 'require("plugins")' after that text, so plugins will be loaded.
+
+
+* Download an Adblock Plus compatible filter lists to luakit data dir into "/home/username/.config/luakit/plugins/adblock/" directory for multiple lists support or into data dir root to use single file. EasyList is the most popular Adblock Plus filter list: http://easylist.adblockplus.org/ 
 
 Configuring
 ===========
