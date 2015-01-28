@@ -11,6 +11,10 @@ local use_command = config.use_command or nil
 local vid_cmd = config.vid_cmd or "vid"
 
 local geometry = config.geometry or "1366x768"
+
+-- TODO possible to figure out the maximized geometry properly?
+--function maximized_geometry() ... end
+--function fullscreen_geometry() ... end
    
 local which = config.which or "mpv"  -- Allows some pre-defined uses.
 
