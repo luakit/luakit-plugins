@@ -21,9 +21,9 @@ local which = config.which or "mpv"  -- Allows some pre-defined uses.
 local watch_functions = {
    mpv = function(view, uri, finish)
       if geometry == "fullscreen" then
-         luakit.spawn(string.format("mpv --fs %s", uri), finish)
+         luakit.spawn(string.format("mpv --force-window --fs %s", uri), finish)
       else
-         luakit.spawn(string.format("mpv --geometry=%s %s", geometry, uri, finish))
+         luakit.spawn(string.format("mpv --force-window --geometry=%s %s", geometry, uri, finish))
       end
    end,
    cclive = function(view, uri, finish)
