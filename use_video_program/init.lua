@@ -12,12 +12,12 @@ local use_command = config.use_command or nil
 local vid_cmd = config.vid_cmd or "vid"
 local vidlist_cmd = config.vid_cmd or "vidlist"
 
-local chain = config.chain
-if chain == nil then chain = true end
+function default_true(x) if x == nil then return true else return x end end
+
+local chain = default_true(config.chain)
 
 -- Whether or not to pop up the window.
-local popup_initial = config.popup_initial  -- First in list.
-if popup_initial == nil then popup_initial = true end
+local popup_initial = default_true(config.popup_initial)  -- First in list.
 local popup = config.popup or false
 
 local geometry = config.geometry or "1366x768"
