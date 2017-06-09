@@ -3,6 +3,8 @@ luakit-plugins
 
 Version control for various [luakit](https://github.com/mason-larobina/luakit/) plugins.
 
+### The contents of this repository do not support the current version of luakit, and are out of date.
+
 Plugins list
 ============
 
