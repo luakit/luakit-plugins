@@ -8,7 +8,6 @@ Version control for various [luakit](https://github.com/mason-larobina/luakit/) 
 Plugins list
 ============
 
-* AdBlock from [luakit-adblock](https://github.com/Plaque-fcc/luakit-adblock/)
 * oldschoolkeys (some old good keybindings from luakit stable releases up to March 2012)
 * tabmenu (menu of tabs open)
 * user agent switcher (allow Luakit to fake it's an other browser)
