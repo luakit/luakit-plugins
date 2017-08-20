@@ -7,22 +7,24 @@ local ipairs = ipairs
 local table = table
 
 local lousy = require "lousy"
-local add_binds, add_cmds = add_binds, add_cmds
-local new_mode, menu_binds = new_mode, menu_binds
+local modes = require "modes"
+local add_binds = modes.add_binds
+local add_cmds = modes.add_cmds
+local new_mode = modes.new_mode
 
-module("plugins.tabmenu")
+local _M = {}
 
-hide_box = false
+_M.hide_box = false
 
-local cmd = lousy.bind.cmd
 add_cmds({
-    cmd("tabmenu", function (w) w:set_mode("tabmenu") end),
+      { ":tabmenu", [[Open tab menu]], function (w) w:set_mode("tabmenu") end },
 })
 
 local escape = lousy.util.escape
+
 new_mode("tabmenu", {
     enter = function (w)
-        hide_box = not w.sbar.ebox.visible
+        _M.hide_box = not w.sbar.ebox.visible
         local rows = {}
         for _, view in ipairs(w.tabs.children) do
             table.insert(rows, {escape(view.uri), escape(view.title), v = view })
@@ -32,21 +34,20 @@ new_mode("tabmenu", {
         local ind = 0
         repeat w.menu:move_down(); ind = ind + 1 until ind == cur
         w.sbar.ebox:show()
-        w:notify("Use j/k to move, d close, Return switch.", false)
+        w:notify("Del - close, Return - switch.", false)
     end,
 
     leave = function (w)
-        if hide_box == true then
+        if _M.hide_box == true then
             w.sbar.ebox:hide()
         end
         w.menu:hide()
     end,
 })
 
-local key = lousy.bind.key
-add_binds("tabmenu", lousy.util.table.join({
-    -- Close tab
-    key({}, "d", function (w)
+
+add_binds("tabmenu", {
+    { "<Delete>", "Delete tab.", function (w)
         local row = w.menu:get()
         if row and row.v then
             local cur = w.view
@@ -57,10 +58,8 @@ add_binds("tabmenu", lousy.util.table.join({
                 w:set_mode()
             end
         end
-    end),
-
-    -- Switch to tab
-    key({}, "Return", function (w)
+    end },
+    { "<Return>", "Open tab.", function (w)
         local row = w.menu:get()
         if row and row.v then
             local cur = w.view
@@ -70,17 +69,10 @@ add_binds("tabmenu", lousy.util.table.join({
                 w:set_mode()
             end
         end
-    end),
-
-    -- Exit menu
-    key({}, "`", function (w) w:set_mode() end),
-
-}, menu_binds))
-
--- Add key binds.
-local buf = lousy.bind.buf
-add_binds("normal", {
-    key({},     "m",    function (w)
-        w:set_mode("tabmenu")
-    end),
+    end },
 })
+
+
+return _M
+
+-- vim: et:sw=4:ts=8:sts=4:tw=80
