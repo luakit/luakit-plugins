@@ -7,71 +7,71 @@ local ipairs = ipairs
 local table = table
 
 local lousy = require "lousy"
-
 local modes = require "modes"
-
 local add_binds = modes.add_binds
 local add_cmds = modes.add_cmds
 local new_mode = modes.new_mode
 
-local add_binds, add_cmds = add_binds, add_cmds
-local new_mode, menu_binds = new_mode, menu_binds
+local _M = {}
 
-module("plugins.tabmenu")
-
-hide_box = false
+_M.hide_box = false
 
 add_cmds({
 	  { ":tabmenu", [[Open tab menu]], function (w) w:set_mode("tabmenu") end },
 })
 
 local escape = lousy.util.escape
-new_mode("tabmenu", {
-			enter = function (w)
-			   hide_box = not w.sbar.ebox.visible
-			   local rows = {}
-			   for _, view in ipairs(w.tabs.children) do
-				  table.insert(rows, {escape(view.uri), escape(view.title), v = view })
-			   end
-			   w.menu:build(rows)
-			   local cur = w.tabs:current()
-			   local ind = 0
-			   repeat w.menu:move_down(); ind = ind + 1 until ind == cur
-			   w.sbar.ebox:show()
-			   w:notify("Del - close, Return - switch.", false)
-			end,
 
-			leave = function (w)
-			   if hide_box == true then
-				  w.sbar.ebox:hide()
-			   end
-			   w.menu:hide()
-			end,
+
+new_mode("tabmenu", {
+    enter = function (w)
+        hide_box = not w.sbar.ebox.visible
+        local rows = {}
+        for _, view in ipairs(w.tabs.children) do
+            table.insert(rows, {escape(view.uri), escape(view.title), v = view })
+        end
+        w.menu:build(rows)
+        local cur = w.tabs:current()
+        local ind = 0
+        repeat w.menu:move_down(); ind = ind + 1 until ind == cur
+        w.sbar.ebox:show()
+        w:notify("Del - close, Return - switch.", false)
+    end,
+
+    leave = function (w)
+        if hide_box == true then
+            w.sbar.ebox:hide()
+        end
+        w.menu:hide()
+    end,
 })
+
 
 add_binds("tabmenu", {
-			 { "<Delete>", "Delete tab.", function (w)
-				  local row = w.menu:get()
-				  if row and row.v then
-					 local cur = w.view
-					 w:close_tab(w.tabs[w.tabs:indexof(row.v)])
-					 if cur ~= row.v then
-						w.menu:del()
-					 else
-						w:set_mode()
-					 end
-				  end
-			 end },
-			 { "<Return>", "Open tab.", function (w)
-					  local row = w.menu:get()
-					  if row and row.v then
-						 local cur = w.view
-						 if cur ~= row.v then
-							w.tabs:switch((w.tabs:indexof(row.v)))
-						 else
-							w:set_mode()
-						 end
-					  end
-				end },
+    { "<Delete>", "Delete tab.", function (w)
+        local row = w.menu:get()
+        if row and row.v then
+            local cur = w.view
+            w:close_tab(w.tabs[w.tabs:indexof(row.v)])
+            if cur ~= row.v then
+                w.menu:del()
+            else
+                w:set_mode()
+            end
+        end
+    end },
+    { "<Return>", "Open tab.", function (w)
+        local row = w.menu:get()
+        if row and row.v then
+            local cur = w.view
+            if cur ~= row.v then
+                w.tabs:switch((w.tabs:indexof(row.v)))
+            else
+                w:set_mode()
+            end
+        end
+    end },
 })
 
+
+return _M
