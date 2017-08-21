@@ -1,7 +1,6 @@
 ------------------------------------------------------------------------
 -- Add some convenient keybindings back.                              --
 ------------------------------------------------------------------------
-local lousy = require("lousy")
 local modes = require "modes"
 
 local add_binds = modes.add_binds
