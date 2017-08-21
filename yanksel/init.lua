@@ -9,7 +9,7 @@ local add_cmds = modes.add_cmds
 
 local _M = {}
 
-local funcs = { 
+local actions = { 
    yank_select = {
 	  desc = "Yank selection.",
 	  func = function (w)
@@ -22,8 +22,8 @@ local funcs = {
    }
 }
 
-add_binds("normal", {{ "^ys$", funcs.yank_select }})
+add_binds("normal", {{ "^ys$", actions.yank_select }})
 
-add_cmds({{ ":yanksel", funcs.yank_select },})
+add_cmds({{ ":yanksel", actions.yank_select },})
 
 return _M
