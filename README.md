@@ -13,8 +13,8 @@ Plugins list
 * user agent switcher (allow Luakit to fake it's an other browser)
 * yank selection (simply yanks selection like yanking title or URI)
 
-Installing
-==========
+Adding Plugin Functionality
+===========================
 
 * In your GitHub application or any other graphical GIT client you may use you should clone this repository into your local luakit config directory, which may be like "/home/username/.config/luakit/".
 By default, it will be named "luakit-plugins", so clone instead into "/home/username/.config/luakit/plugins" to let Lua find modules correctly.
@@ -33,6 +33,12 @@ Since v0.1.0 'rc.lua' can contain
 plugins.policy = "automatic"
 ```
 This will enable plugins module to load everything ignoring other implicit selections; to change this behaviour, set this value to "manual".
+
+The ```remotemanager``` branch will allow you to automatically download and update plugins from git repos by adding them to the ```repos_to_watch``` table.  For example...
+
+```repos_to_watch = {
+    "https://github.com/5paceManSpiff/luakit-adblock.git",
+}```
 
 Development guidelines
 ======================
