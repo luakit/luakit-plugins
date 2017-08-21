@@ -22,10 +22,9 @@ add_cmds({
 
 local escape = lousy.util.escape
 
-
 new_mode("tabmenu", {
     enter = function (w)
-        hide_box = not w.sbar.ebox.visible
+        _M.hide_box = not w.sbar.ebox.visible
         local rows = {}
         for _, view in ipairs(w.tabs.children) do
             table.insert(rows, {escape(view.uri), escape(view.title), v = view })
@@ -39,7 +38,7 @@ new_mode("tabmenu", {
     end,
 
     leave = function (w)
-        if hide_box == true then
+        if _M.hide_box == true then
             w.sbar.ebox:hide()
         end
         w.menu:hide()
