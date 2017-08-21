@@ -2,7 +2,6 @@
 -- Add yanking selection keybinding (as seen on Wiki ;).              --
 ------------------------------------------------------------------------
 local luakit = luakit
-local lousy = require("lousy")
 local modes = require "modes"
 local add_binds = modes.add_binds
 local add_cmds = modes.add_cmds
