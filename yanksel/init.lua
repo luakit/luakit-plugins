@@ -26,3 +26,5 @@ add_binds("normal", {{ "^ys$", actions.yank_select }})
 add_cmds({{ ":yanksel", actions.yank_select },})
 
 return _M
+
+-- vim: et:sw=4:ts=8:sts=4:tw=80
