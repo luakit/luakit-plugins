@@ -8,16 +8,17 @@ local add_cmds = modes.add_cmds
 
 local _M = {}
 
-local actions = { 
+
+local actions = {
    yank_select = {
-	  desc = "Yank selection.",
-	  func = function (w)
-		 local text = luakit.selection.primary
-		 if not text then w:error("Empty selection.") return end
-		 luakit.selection.clipboard = text
-		 w:notify("Yanked selection: " .. text)
-		 luakit.selection.primary = ""
-	  end,
+      desc = "Yank selection.",
+      func = function (w)
+         local text = luakit.selection.primary
+         if not text then w:error("Empty selection.") return end
+         luakit.selection.clipboard = text
+         w:notify("Yanked selection: " .. text)
+         luakit.selection.primary = ""
+      end,
    }
 }
 

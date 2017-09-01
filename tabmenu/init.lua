@@ -17,7 +17,7 @@ local _M = {}
 _M.hide_box = false
 
 add_cmds({
-	  { ":tabmenu", [[Open tab menu]], function (w) w:set_mode("tabmenu") end },
+      { ":tabmenu", [[Open tab menu]], function (w) w:set_mode("tabmenu") end },
 })
 
 local escape = lousy.util.escape
