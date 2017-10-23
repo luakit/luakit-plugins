@@ -8,6 +8,7 @@ local table = table
 
 local lousy = require "lousy"
 local modes = require "modes"
+local binds = require "binds"
 local add_binds = modes.add_binds
 local add_cmds = modes.add_cmds
 local new_mode = modes.new_mode
@@ -46,7 +47,7 @@ new_mode("tabmenu", {
 })
 
 
-add_binds("tabmenu", {
+add_binds("tabmenu", lousy.util.table.join({
     { "<Delete>", "Delete tab.", function (w)
         local row = w.menu:get()
         if row and row.v then
@@ -70,8 +71,7 @@ add_binds("tabmenu", {
             end
         end
     end },
-})
-
+}, binds.menu_binds))
 
 return _M
 
