@@ -86,6 +86,8 @@ add_binds("search-menu", lousy.util.table.join({
                      local row = w.menu:get()
                      w:set_mode()
                      if row and row.uri then
+                        -- clean primary selection after search?
+                        luakit.selection.primary = ""
                         w:new_tab(row.uri)
                      end
                 end },
@@ -94,6 +96,8 @@ add_binds("search-menu", lousy.util.table.join({
                      local row = w.menu:get()
                      w:set_mode()
                      if row and row.uri then
+                        -- clean primary selection after search?
+                        luakit.selection.primary = ""
                         window.new({row.uri})
                      end
                 end },
@@ -102,6 +106,8 @@ add_binds("search-menu", lousy.util.table.join({
                      local row = w.menu:get()
                      w:set_mode()
                      if row and row.uri then
+                        -- clean primary selection after search?
+                        luakit.selection.primary = ""
                         w.view.uri = row.uri
                      end
                 end },
