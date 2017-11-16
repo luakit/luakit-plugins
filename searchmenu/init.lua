@@ -30,7 +30,7 @@ local function populate_search_menu (view, menu)
             submenu[n] = {}
             submenu[n][1] = name
             submenu[n][2] = function (view)
-               view.uri = string.format(url, selection)
+               view.uri = string.format(url, luakit.uri_encode(selection))
                -- clean primary selection after search?
                luakit.selection.primary = ""
             end
@@ -67,7 +67,7 @@ new_mode("search-menu", {
                if search_engines then
                   for name, uri in pairs(search_engines) do
                      local _title = lousy.util.escape(name)
-                     local _uri = lousy.util.escape(string.format(uri, selection))
+                     local _uri = lousy.util.escape(string.format(uri, luakit.uri_encode(selection)))
                      table.insert(rows, 2, { "  " .. _title, " " .. _uri, uri = _uri })
                   end
                   w.menu:build(rows)
