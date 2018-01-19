@@ -1,0 +1,35 @@
+{
+    ["notification"] = {
+      ["allowed"] = {
+        "www.bennish.net",
+      },
+      ["denied"] = {
+        "www.google.com",
+      },
+      -- "allowed" or "denied" by default.
+      -- if not specified -- denied by default
+      ["default"] = "denied",
+      -- if default set to 'allowed' then checking 'denied' section
+      -- if default set to 'denied' then checking 'allowed' section
+    },
+    ["geolocation"] = {
+      ["denied"] = {
+      },
+      ["allowed"] = {
+        -- values are regexps
+        "https://.*%.google%..+",
+      },
+      ["default"] = "denied",
+    },
+    ["install-missing-media-plugins"] = {
+      ["default"] = "denied",
+    },
+    ["user-media"] = {
+        ["audio"] = {
+          ["default"] = "denied",
+        },
+        ["video"] = {
+          ["default"] = "denied",
+        },
+    },
+}
