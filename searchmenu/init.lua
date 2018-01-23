@@ -14,6 +14,15 @@ local add_binds, add_cmds = modes.add_binds, modes.add_cmds
 local menu_binds = binds.menu_binds
 local new_mode = require("modes").new_mode
 
+local function try_search_engine (engine, selection)
+    if type(engine) == "string" then
+        return string.format(engine, luakit.uri_encode(selection))
+    else
+        local ok, ret = pcall(engine, selection)
+        return ok and ret or nil
+    end
+end
+
 local function populate_search_menu (view, menu)
     -- populate this menu only if we have something selected on page
     local selection = luakit.selection.primary
@@ -23,15 +32,18 @@ local function populate_search_menu (view, menu)
             -- let's populate search submenus
             local submenu = {}
             local n = 1
-            for name, url in pairs(search_engines) do
-                submenu[n] = {}
-                submenu[n][1] = name
-                submenu[n][2] = function (view)
-                    view.uri = string.format(url, luakit.uri_encode(selection))
-                    -- clean primary selection after search?
-                    luakit.selection.primary = ""
+            for name, engine in pairs(search_engines) do
+                local url = try_search_engine(engine, selection)
+                if url then
+                    submenu[n] = {}
+                    submenu[n][1] = name
+                    submenu[n][2] = function (view)
+                        view.uri = url
+                        -- clean primary selection after search?
+                        luakit.selection.primary = ""
+                    end
+                    n = n+1
                 end
-                n = n+1
             end
             n = #menu + 1
             -- add separator
@@ -62,8 +74,11 @@ new_mode("search-menu", {
         if search_engines then
             for name, uri in pairs(search_engines) do
                 local _title = lousy.util.escape(name)
-                local _uri = lousy.util.escape(string.format(uri, luakit.uri_encode(selection)))
-                table.insert(rows, 2, { "  " .. _title, " " .. _uri, uri = _uri })
+                local _uri = try_search_engine(uri, selection)
+                if _uri then
+                    _uri = lousy.util.escape(_uri)
+                    table.insert(rows, 2, { "  " .. _title, " " .. _uri, uri = _uri })
+                end
             end
             w.menu:build(rows)
             w:notify("Use j/k to move, t to open search results in new tab, w to open search results in new win.", false)
@@ -125,3 +140,5 @@ add_binds("normal", {
 add_cmds({
     { ":search-menu, :sm", "Select search engine from menu.", open_search_menu },
 })
+
+-- vim: et:sw=4:ts=8:sts=4:tw=80
