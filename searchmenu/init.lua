@@ -5,6 +5,7 @@
 -------------------------------------------------------------------------------
 
 local lousy = require("lousy")
+local table_keys = lousy.util.table.keys
 local webview = require ("webview")
 local window = require ("window")
 local settings = require ("settings")
@@ -32,7 +33,8 @@ local function populate_search_menu (view, menu)
             -- let's populate search submenus
             local submenu = {}
             local n = 1
-            for name, engine in pairs(search_engines) do
+            for _, name in ipairs(table_keys(search_engines)) do
+                local engine = search_engines[name]
                 local url = try_search_engine(engine, selection)
                 if url then
                     submenu[n] = {}
@@ -72,12 +74,13 @@ new_mode("search-menu", {
         local selection = luakit.selection.primary
         local search_engines = settings.get_setting_for_view(w.view, "window.search_engines")
         if search_engines then
-            for name, uri in pairs(search_engines) do
+            for _, name in ipairs(table_keys(search_engines)) do
+                local engine = search_engines[name]
                 local _title = lousy.util.escape(name)
-                local _uri = try_search_engine(uri, selection)
+                local _uri = try_search_engine(engine, selection)
                 if _uri then
                     _uri = lousy.util.escape(_uri)
-                    table.insert(rows, 2, { "  " .. _title, " " .. _uri, uri = _uri })
+                    table.insert(rows, { "  " .. _title, " " .. _uri, uri = _uri })
                 end
             end
             w.menu:build(rows)
