@@ -83,7 +83,7 @@ end
 local function webview2group(view)
     local nb = assert(view.parent)
     local w = assert(window.ancestor(nb))
-    for g, gv in pairs(w2groups[w].groups) do
+    for _, gv in pairs(w2groups[w].groups) do
         if gv._notebook == nb then
             return gv
         end
@@ -278,6 +278,53 @@ window.add_signal("init", function (w)
             delete_tabgroup(win, current_tg_name)
         end
     end)
+end)
+
+-- add to popup menu submenu for opening new tab in different tabgroups
+local function populate_open_in_tabgroup_menu (view, menu)
+    -- populate this menu only if we hovering some uri
+    local uri = view.hovered_uri
+    if uri then
+        local w = window.ancestor(view)
+        local tabgroups = {}
+        for g, _ in pairs(w2groups[w].groups) do
+            -- skip active tabgroup
+            if g ~= w2groups[w].active then
+                table.insert(tabgroups, g)
+            end
+        end
+
+        -- if we have more then one tabgroup then let's populate submenu
+        if #tabgroups > 0 then
+            local switch_to = settings.get_setting("tabgroups.switch_to_new_tab")
+            local submenu = {}
+            local n = 1
+            for _, tg in ipairs(tabgroups) do
+                submenu[n] = { tg, function (_)
+                    open_new_tab_in_tabgroup(w, tg, uri, {switch = switch_to })
+                    if switch_to then
+                        switch_tabgroup(w, tg)
+                    end
+                end}
+                n = n+1
+            end
+
+            -- look for menu item "Open Link in New Tab"
+            for i, mi in ipairs(menu) do
+                if type(mi) == 'table' and mi[1] == 'Open Link in New Tab' then
+                    n = i
+                    break
+                end
+            end
+
+            -- add submenu after 'Open Link in New Tab'
+            table.insert(menu, n+1, { "Open Link in Tab Group", submenu })
+        end
+    end
+end
+
+webview.add_signal("init", function (view)
+    view:add_signal("populate-popup", populate_open_in_tabgroup_menu)
 end)
 
 -- session handling
@@ -726,19 +773,39 @@ new_mode("tabgroup-menu", {
     end,
 })
 
+local _confirmation = setmetatable({}, {__mode = 'k'});
+new_mode("delete-tg-ask-confirmation", {
+    enter = function (w, confirmation_msg, row)
+        w:warning(confirmation_msg..' (y/n)', false)
+        _confirmation[w] = row
+    end,
+
+    leave = function (w)
+        _confirmation[w] = nil
+    end,
+})
+
+modes.add_binds("delete-tg-ask-confirmation", {
+    { "y", "Answer 'Yes' on confirmation.", function (w)
+        assert(_confirmation[w]._group)
+        local deleted = delete_tabgroup(w, _confirmation[w]._group)
+        open_tabgroup_menu(w)
+        if not deleted then
+            w:notify("Can't remove last tabgroup")
+        end
+    end },
+    { "n", "Answer 'No' on confirmation.", function (w) open_tabgroup_menu(w) end },
+    { "<Escape>", "Answer 'No' on confirmation.", function (w) open_tabgroup_menu(w) end },
+})
+
 add_binds("tabgroup-menu", lousy.util.table.join({
     { "<Return>", "Switch to tabgroup or tab in tabgroup.", switch_tabgroup_or_tab },
     { "n", "Create new tabgroup.", new_tabgroup },
     { "r", "Rename tabgroup.", rename_tabgroup },
     { "d", "Delete tabgroup.", function(w)
         local row = w.menu:get()
-        w:set_mode()
         if row and row._group then
-            local deleted = delete_tabgroup(w, row._group)
-            open_tabgroup_menu(w)
-            if not deleted then
-                w:notify("Can't remove last tabgroup")
-            end
+            w:set_mode("delete-tg-ask-confirmation", "Really delete tabgroup '"..row._group.."'?", row)
         end
     end},
     { "+", "Open list of tabs in tabgroup.", show_tabgroup_content },
@@ -815,6 +882,11 @@ and _order_ is
 - `asc`: sort in ascending order
 - `desc`: sort in descending order
 ]=]
+    },
+    ["tabgroups.switch_to_new_tab"] = {
+        type = "boolean",
+        default = true,
+        desc = "Switch to new tabgroup after opening link to different tabgroup from popup menu or not"
     },
 })
 
