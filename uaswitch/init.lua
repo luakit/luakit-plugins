@@ -3,7 +3,6 @@
 -- © 2012 Plaque FCC <Reslayer@ya.ru>                     --
 ------------------------------------------------------------
 
-local globals   = globals
 local string    = string
 local type      = type
 local dofile    = dofile
@@ -12,13 +11,10 @@ local error     = error
 local pairs     = pairs
 local ipairs    = ipairs
 local io        = io
-local capi      = { luakit = luakit }
-local lousy     = require ("lousy")
-local util      = lousy.util
-local add_binds, add_cmds = add_binds, add_cmds
-local lfs       = require ("lfs")
+local settings  = require("settings")
 local plugins   = require ("plugins")
-local window    = window
+local window    = require ("window")
+local modes	= require ("modes")
 
 module("plugins.uaswitch")
 
@@ -32,14 +28,14 @@ ua_strings = {}
 function update_views()
     for _, w in pairs(window.bywidget) do
         for _, v in ipairs(w.tabs.children) do
-            v.user_agent = globals.useragent
+            v.user_agent = settings.webview.user_agent
         end
     end
 end
 
 function load_ua_strings()
     ua_strings = {
-        original = string.rep(globals.useragent, 1),
+        original = string.rep(settings.webview.user_agent, 1),
         fakes = {}
     }
     dofile(ua_strings_file)
@@ -60,7 +56,7 @@ function switch_to(alias)
 
     if (useragent) then
         io.stdout:write("uaswitcher: Change to '" .. useragent .."'.\n")
-        globals.useragent = string.rep(useragent, 1)
+        settings.webview.user_agent = string.rep(useragent, 1)
         update_views()
         return
     else
@@ -75,11 +71,10 @@ function load()
 end
 
 -- Add commands.
-local cmd = lousy.bind.cmd
-add_cmds({
-    cmd({"user-agent", "ua"}, function (w, a)
-        switch_to(a)
-    end),
+modes.add_cmds({
+	{ ":user-agent", "Set user-agent string", function (w, a)
+	    switch_to(a.arg)
+	end},
 })
 
 -- Initialise module
