@@ -18,7 +18,7 @@ local modes	= require ("modes")
 
 
 
-ua_strings_file = plugins.plugins_dir .. "uaswitch/ua_strings.lua"
+local ua_strings_file = plugins.plugins_dir .. "uaswitch/ua_strings.lua"
 local _M = {}
 _M.ua_strings = {}
 _M.hide_box = false
