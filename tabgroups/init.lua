@@ -432,7 +432,7 @@ local function _build_tabgroup_menu_grouptabs(w, group_name, field, order)
             atime = tab.atime,
             mtime = tab.mtime,
             ctime = tab.ctime,
-            title = v.title,
+            title = v.title or '',
             n = i,
         })
     end
