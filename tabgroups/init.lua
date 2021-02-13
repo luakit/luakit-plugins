@@ -900,6 +900,13 @@ local _M = {
     create_tabgroup = function(...) return create_tabgroup(...) end,
     switch_tabgroup = function(...) return switch_tabgroup(...) end,
     delete_tabgroup = function(...) return delete_tabgroup(...) end,
+    current_tabgroup = function(w)
+                           if w2groups and w2groups[w] and w2groups[w].active then
+                               return w2groups[w].active
+                           else
+                               return "No Tabgroup Selected"
+                           end
+                       end,
 }
 
 return _M
