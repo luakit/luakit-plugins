@@ -688,6 +688,8 @@ new_mode("tabgroup-menu-rename", {
             if w2groups[w].active == old_name then
                 w2groups[w].active = new_name
             end
+            w.view:emit_signal("switched-page") -- a `tabgroup-changed` signal may be more appropriate,
+                                                -- (both here, and in `switch_tabgroup` above)..
         end
         w:set_mode('tabgroup-menu')
     end,
