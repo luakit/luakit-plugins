@@ -410,7 +410,11 @@ end)
 local function _sort_by_field(field, order, a, b)
     assert(order == "asc" or order == "desc")
     assert(field and a[field] and b[field])
-    return (a[field] <= b[field]) == (order == "asc")
+    if order == "asc" then
+        return a[field] < b[field]
+    else
+        return a[field] > b[field]
+    end
 end
 
 local function _build_tabgroup_menu_grouptabs(w, group_name, field, order)
