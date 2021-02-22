@@ -9,7 +9,6 @@ Plugins list
 ============
 
 * oldschoolkeys (some old good keybindings from luakit stable releases up to March 2012)
-* tabmenu (menu of tabs open)
 * user agent switcher (allow Luakit to fake it's an other browser)
 * yank selection (simply yanks selection like yanking title or URI)
 
