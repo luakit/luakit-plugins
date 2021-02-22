@@ -28,6 +28,7 @@ new_mode("tabmenu", {
         _M.hide_box = not w.sbar.ebox.visible
         local rows = {}
         for _, view in ipairs(w.tabs.children) do
+            if not view.uri then view.uri = " " end
             table.insert(rows, {escape(view.uri), escape(view.title), v = view })
         end
         w.menu:build(rows)
