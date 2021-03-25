@@ -1,4 +1,4 @@
---- Tab groups management module
+--- Tab groups management module.
 --
 -- This module allows you to group opened tabs and switch between different groups
 -- and tabs in groups
@@ -7,9 +7,10 @@
 --
 -- # Usage
 --
--- * Add `require "tabgroups"` to your `config.rc`.
--- * Press 'x' to open list of defined tabgroups
--- * Press 'X' to open list of tabs in active tabgroup
+-- * Add `require "tabgroups"` to your `rc.lua`.
+-- * Press 'x' to open list of defined tabgroups.
+-- * Press 'X' to open list of tabs in active tabgroup.
+-- * (Optional) add the `tgname` widget to your status bar.
 --
 -- # Troubleshooting
 --
@@ -30,6 +31,8 @@ local new_mode = require("modes").new_mode
 local session = require("session")
 local settings = require("settings")
 local lousy = require("lousy")
+
+local _M = {}
 
 local _new_tabgroup_prefix = "Unnamed#"
 local _default_notify = "n: create new group, d: delete group, r: rename group"
@@ -56,9 +59,9 @@ local function _get_next_tabgroup_name(w)
     return name
 end
 
-local function grouptabs(w, group)
-    assert(type(group) == 'string')
-    local group = assert(w2groups[w].groups[group])
+local function grouptabs(w, g)
+    assert(type(g) == 'string')
+    local group = assert(w2groups[w].groups[g])
     assert(group._notebook)
     assert(group._notebook.type == "notebook")
     local i = 0
@@ -69,7 +72,7 @@ local function grouptabs(w, group)
     end
 end
 
-local function webview2idx(w, group, view)
+local function webview2idx(view)
     local nb = assert(view.parent)
     -- should we have separate handling for case when
     -- view.parent is not same as w2groups[w].groups[group]._notebook?
@@ -359,10 +362,14 @@ session.add_signal("restore", function (state)
                     }
                 end
                 local group = w2groups[w].groups[gn]
-                group.name = src.name
-                group.atime = src.atime or 0
-                group.mtime = src.mtime or 0
-                group.ctime = src.ctime or os.time()
+                if group then
+                    group.name = src.name
+                    group.atime = src.atime or 0
+                    group.mtime = src.mtime or 0
+                    group.ctime = src.ctime or os.time()
+                else
+                    create_tabgroup(w, gn)
+                end
             end
         end
     end
@@ -410,7 +417,11 @@ end)
 local function _sort_by_field(field, order, a, b)
     assert(order == "asc" or order == "desc")
     assert(field and a[field] and b[field])
-    return (a[field] <= b[field]) == (order == "asc")
+    if order == "asc" then
+        return a[field] < b[field]
+    else
+        return a[field] > b[field]
+    end
 end
 
 local function _build_tabgroup_menu_grouptabs(w, group_name, field, order)
@@ -428,7 +439,7 @@ local function _build_tabgroup_menu_grouptabs(w, group_name, field, order)
             atime = tab.atime,
             mtime = tab.mtime,
             ctime = tab.ctime,
-            title = v.title,
+            title = v.title or '',
             n = i,
         })
     end
@@ -619,7 +630,7 @@ local function switch_tabgroup_or_tab(w, _, m)
         w:set_mode()
         switch_tabgroup(w, row._group);
         if row._tab and row._tab ~= current_webview_in_group(w, w2groups[w].active) then
-            local idx = webview2idx(w, row._group, row._tab)
+            local idx = webview2idx(row._tab)
             if idx then
                 w:goto_tab(idx)
             end
@@ -684,6 +695,8 @@ new_mode("tabgroup-menu-rename", {
             if w2groups[w].active == old_name then
                 w2groups[w].active = new_name
             end
+            w.view:emit_signal("switched-page") -- a `tabgroup-changed` signal may be more appropriate,
+                                                -- (both here, and in `switch_tabgroup` above)..
         end
         w:set_mode('tabgroup-menu')
     end,
@@ -890,13 +903,54 @@ and _order_ is
     },
 })
 
-local _M = {
-    open_new_tab_in_tabgroup = function(...) return open_new_tab_in_tabgroup(...) end,
-    move_tab_to_tabgroup = function(...) return move_tab_to_tabgroup(...) end,
-    create_tabgroup = function(...) return create_tabgroup(...) end,
-    switch_tabgroup = function(...) return switch_tabgroup(...) end,
-    delete_tabgroup = function(...) return delete_tabgroup(...) end,
-}
+
+--- Open a given uri in a new tab in the given window.
+--
+-- @tparam table w The window the tab should be opened in.
+-- @tparam tabgroup group The tabgroup the new tab should be added to.
+-- @tparam string uri The uri to be opened.
+-- @tparam table opts Additional options
+_M.open_new_tab_in_tabgroup = function(...) return open_new_tab_in_tabgroup(...) end
+
+--- Move tab to another tabgroup.
+--
+-- @tparam table w The window the tab should be opened in.
+-- @tparam widget view The webview
+-- @tparam tabgroup group The tabgroup the new tab should be added to.
+_M.move_tab_to_tabgroup = function(...) return move_tab_to_tabgroup(...) end
+
+--- Create a new tabgroup (or fetch one if `group_name` is in use).
+--
+-- @tparam table w The window to be associated with the tabgroup.
+-- @tparam string group_name The name of the new group.
+-- @treturn table The tabgroup, newly created or already existing.
+_M.create_tabgroup = function(...) return create_tabgroup(...) end
+
+--- Switch to specified tabgroup
+--
+-- @tparam table w A window.
+-- @tparam string group The name of the tabgroup to switch to.
+_M.switch_tabgroup = function(...) return switch_tabgroup(...) end
+
+--- Delete the specified tabgroup
+--
+-- @tparam table w A window.
+-- @tparam string group The name of the tabgroup to delete.
+-- @treturn boolean nil if only one tabgroup exists, true otherwise.
+_M.delete_tabgroup = function(...) return delete_tabgroup(...) end
+
+--- Return the name of the current tabgroup.
+--
+-- @param object The object to set up for signals.
+-- @tparam table w A window.
+-- @treturn string The name of w's current tabgroup.
+function _M.current_tabgroup (w)
+    if w2groups and w2groups[w] and w2groups[w].active then
+        return w2groups[w].active
+    else
+        return "No Tabgroup Selected"
+    end
+end
 
 return _M
 
