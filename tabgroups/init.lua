@@ -362,10 +362,14 @@ session.add_signal("restore", function (state)
                     }
                 end
                 local group = w2groups[w].groups[gn]
-                group.name = src.name
-                group.atime = src.atime or 0
-                group.mtime = src.mtime or 0
-                group.ctime = src.ctime or os.time()
+                if group then
+                    group.name = src.name
+                    group.atime = src.atime or 0
+                    group.mtime = src.mtime or 0
+                    group.ctime = src.ctime or os.time()
+                else
+                    create_tabgroup(w, gn)
+                end
             end
         end
     end
