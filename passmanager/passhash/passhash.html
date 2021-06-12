@@ -1,0 +1,102 @@
+<div class="passhash-popup-content">
+  <div class="passhash-popup-header">
+    <span id="passhash-close" class="passhash-popup-close">&#10006;</span>
+    <h3>Password Hasher</h3>
+  </div>
+
+  <div class="passhash-popup-main">
+    <form>
+      <input id='passhash-options' value='' type='hidden'>
+      <fieldset>
+        <!-- row 1 -->
+        <div>
+          <input id="site-tag" type="text"
+                 placeholder="Site or other name, e.g. google"
+                 onInput="passhash_onUpdateMaster();"
+                 />
+          <a id="bump" class="passhash-popup-button"
+             onClick="passhash_onBump(this);">Bump</a>
+        </div>
+
+        <!-- row 2 -->
+        <div>
+          <input id="master-key" type="password"
+                 placeholder="Master key"
+                 onInput="passhash_onUpdateMaster();"
+                 />
+          <a id="reveal" class="passhash-popup-button"
+             onClick="passhash_onReveal(this);">Reveal</a>
+        </div>
+
+        <!-- row 3 -->
+        <div>
+          <input id="hash-word" type="password" readonly
+                 placeholder="Hash word"/>
+          <a id="passhash-ok" class="passhash-popup-button">OK</a>
+        </div>
+      </fieldset>
+
+      <!-- Requirements fields -->
+      <fieldset>
+        <legend>Requirements</legend>
+
+        <div>
+          <label for="passhash-password-size">Password size</label>
+          <select id="passhash-password-size" onChange="passhash_update();">
+            <option value="4">4</option>
+            <option value="6">6</option>
+            <option value="8" selected>8</option>
+            <option value="10">10</option>
+            <option value="12">12</option>
+            <option value="14">14</option>
+            <option value="16">16</option>
+            <option value="18">18</option>
+            <option value="20">20</option>
+            <option value="22">22</option>
+            <option value="24">24</option>
+            <option value="26">26</option>
+            <option value="28">28</option>
+            <option value="30">30</option>
+            <option value="32">32</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="digit">
+            <input id="digit" type="checkbox" checked
+                   onClick="passhash_update();">Digit
+          </label>
+        </div>
+
+        <div>
+          <label for="punctuation">
+            <input id="punctuation" type="checkbox" checked
+                   onClick="passhash_update();">Punctuation
+          </label>
+        </div>
+
+        <div>
+          <label for="mixedCase">
+            <input id="mixedCase" type="checkbox" checked
+                   onClick="passhash_update();">Mixed Case
+          </label>
+        </div>
+
+        <div>
+          <label for="noSpecial">
+            <input id="noSpecial" type="checkbox"
+                   onClick="passhash_onNoSpecial(this);">No Special
+          </label>
+        </div>
+
+        <div>
+          <label for="digitsOnly">
+            <input id="digitsOnly" type="checkbox"
+                   onClick="passhash_onDigitsOnly(this);">Digits Only
+          </label>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+</div>
